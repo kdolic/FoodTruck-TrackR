@@ -1,39 +1,24 @@
 import React from 'react';
-import { Formik, Form, useField } from 'formik';
+import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { Link } from 'react-router-dom';
-
+import Image from '../images/foodtruck.png';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Container,
   Grid,
   Box,
-  FormHelperText,
   Button,
-  Select,
   Checkbox,
   TextField,
+  InputLabel,
+  FormHelperText,
+  FormControl,
 } from '@material-ui/core/';
-import foodtruck from '../images/foodtruck.png';
-import { red } from '@material-ui/core/colors';
 import Axios from 'axios';
+
+// Styles for the form components
 const useStyles = makeStyles(theme => ({
-  container: {
-    margin: '80px auto',
-    border: '1px solid #d2d2d2',
-    boxShadow: '0px 1px 10px -2px #807f7f',
-    borderRadius: '15px',
-    backgroundColor: '#FFF9F0',
-    width: '70%',
-    height: '88vh',
-    '@media (max-width: 550px)': {
-        width: '90%',
-        height: 'auto', 
-        marginBottom: '10%',
-        display: 'flex',
-        flexDirection: 'column',
-        },
-    },
   header: {
     textAlign: 'center',
     marginTop: '5%',
@@ -48,202 +33,138 @@ const useStyles = makeStyles(theme => ({
       height: 'auto',
     },
   },
-  label: {
-    marginLeft: '3%',
-    '@media (max-width: 550px)': {
-      fontSize: '0.75rem',
-    },
-  },
-  fields: {
-    width: '94%',
-    marginLeft: '3%',
-    '@media (max-width: 550px)': {
-      fontSize: '0.75rem',
-    },
-  },
   error: {
-    fontSize: '0.75rem',
-    color: red[600],
-    width: '100%',
-    marginTop: '0.25rem',
-    marginLeft: '1%',
-    '&::before': {
-      content: '":x: "',
-      fontSize: '0.65rem',
-    },
+    color: 'red',
   },
   button: {
-    width: '30%',
-    marginLeft: '35%',
     padding: '1% 0',
     backgroundImage: 'linear-gradient(#FFAD33, #BF8124)',
     color: 'white',
+    '&:focus': {
+      outline: 'none',
+    },
   },
   footer: {
     marginBottom: '5%',
   },
 }));
 
-export default function RegisterForm(){
+// Yup validation
+const validationSchema = Yup.object({
+  username: Yup.string()
+    .min(4, 'Must be 4 to 8 chacaters')
+    .max(8, 'Must be 4 to 8 chacaters')
+    .required('Required'),
+  password: Yup.string()
+    .required('No password provided')
+    .min(6, 'Must be 6 to 12 characters')
+    .max(12, 'Must be 6 to 12 characters')
+    .matches(
+      /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,12}$/,
+      'Password needs at least one upper case letter, one lower case letter, and one numeric digit'
+    ),
+  email: Yup.string().email('Invalid email address').required('Required'),
+  acceptedTerms: Yup.boolean()
+    .required('Required')
+    .oneOf([true], 'You must accept the terms of service'),
+});
+
+const RegisterForm = () => {
+  // setting component styles
   const classes = useStyles();
-  const FormTextInput = ({ label, ...props }) => {
-    const [field, meta] = useField(props);
-    return (
-      <>
-        <label htmlFor={props.id || props.name}>{label}</label>
-        <TextField
-          id='standard-basic'
-          className={classes.fields}
-          width={1}
-          {...field}
-          {...props}
-        />
-        {meta.touched && meta.error ? (
-          <FormHelperText className={classes.error}>
-            {meta.error}
-          </FormHelperText>
-        ) : null}
-      </>
-    );
-  };
-  const FormCheckbox = ({ children, ...props }) => {
-    const [field, meta] = useField({ ...props, type: 'checkbox' });
-    return (
-      <>
-        <label className='checkbox'>
-          <Checkbox {...field} {...props} type='checkbox' />
-          {children}
-        </label>
-        {meta.touched && meta.error ? (
-          <FormHelperText className={classes.error}>
-            {meta.error}
-          </FormHelperText>
-        ) : null}
-      </>
-    );
-  };
-  const FormSelect = ({ label, ...props }) => {
-    const [field, meta] = useField(props);
-    return (
-      <>
-        <label htmlFor={props.id || props.name}>{label}</label>
-        <Select
-          native
-          value='accounttype'
-          {...field}
-          {...props}
-          className={classes.fields}
-        />
-        {meta.touched && meta.error ? (
-          <FormHelperText className={classes.error}>
-            {meta.error}
-          </FormHelperText>
-        ) : null}
-      </>
-    );
-  };
+
+  // setting formik initial values
+  const formik = useFormik({
+    initialValues: {
+      username: '',
+      email: '',
+      password: '',
+      acceptedTerms: false,
+    },
+    validationSchema: validationSchema,
+    onSubmit: values => {
+      alert(JSON.stringify(values, null, 2));
+    },
+  });
+
   return (
     <>
-      <Formik
-        initialValues={{
-          accountType: '',
-          username: '',
-          password: '',
-          acceptedTerms: false,
-        }}
-        validationSchema={Yup.object({
-          accountType: Yup.string()
-            .oneOf(['operator', 'diner'], 'Invalid account type')
-            .required('Required'),
-          username: Yup.string()
-            .min(4, 'Must be 4 to 8 characters')
-            .max(8, 'Must be 4 to 8 characters')
-            .required('Required'),
-          password: Yup.string()
-            .required('No password provided')
-            .min(6, 'Must be 6 to 12 characters')
-            .max(12, 'Must be 6 to 12 characters')
-            .matches(
-              /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,12}$/,
-              'Password needs at least one upper case letter, one lower case letter, and one numeric digit'
-            ),
-          email: Yup.string()
-            .email('Invalid email address')
-            .required('Required'),
-          acceptedTerms: Yup.boolean()
-            .required('Required')
-            .oneOf([true], 'You must accept the terms and conditions'),
-        })}
-        onSubmit={async (values, { setSubmitting, resetForm }) => {
-          await new Promise(r => setTimeout(r, 500));
-          alert(JSON.stringify(values, null, 2));
-          resetForm();
-          setSubmitting(false);
-        }}>
-        <Form className={classes.container}>
-          <Box className={classes.header}>
-            <img alt={'foodtruck'} src={foodtruck} className={classes.responsive} />
-            <h5>Register</h5>
-          </Box>
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <Box>
-                <label className={classes.label} htmlFor='accountType'>
-                  ACCOUNT TYPE
-                </label>
-              </Box>
-              <FormSelect id='accountType' name='accountType'>
-                <option aria-label='None' value='' />
-                <option value='operator'>Operator</option>
-                <option value='diner'>Diner</option>
-              </FormSelect>
-            </Grid>
-            <Grid item xs={12}>
-              <Box>
-                <label className={classes.label} htmlFor='username'>
-                  USERNAME
-                </label>
-              </Box>
-              <FormTextInput
-                id='username'
-                name='username'
-                type='text'
-                width={1}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Box>
-                <label className={classes.label} htmlFor='email'>
-                  E-MAIL
-                </label>
-              </Box>
-              <FormTextInput id='email' name='email' type='email' />
-            </Grid>
-            <Grid item xs={12}>
-              <Box>
-                <label className={classes.label} htmlFor='password'>
-                  PASSWORD
-                </label>
-              </Box>
-              <FormTextInput id='password' name='password' type='password' />
-            </Grid>
-            <Grid item xs={12}>
-              <FormCheckbox name='acceptedTerms' >
-                I agree to all statements in the{' '}
-                <Link to=''>terms of service</Link>
-              </FormCheckbox>
-            </Grid>
-            <Grid item xs={12} className={classes.footer}>
-              <Button
-                variant='contained'
-                type='submit'
-                className={classes.button}>
-                Sign Up!
-              </Button>
-            </Grid>
+      <form onSubmit={formik.handleSubmit}>
+        <Box className={classes.header}>
+          <img alt={'foodtruck'} src={Image} className={classes.responsive} />
+          <h5>Register</h5>
+        </Box>
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              id='username'
+              name='username'
+              label='Username'
+              value={formik.values.username}
+              onChange={formik.handleChange}
+              error={formik.touched.username && Boolean(formik.errors.username)}
+              helperText={formik.touched.username && formik.errors.username}
+            />
           </Grid>
-        </Form>
-      </Formik>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              id='email'
+              name='email'
+              label='Email'
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              error={formik.touched.email && Boolean(formik.errors.email)}
+              helperText={formik.touched.email && formik.errors.email}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              id='password'
+              name='password'
+              label='Password'
+              type='password'
+              value={formik.values.password}
+              onChange={formik.handleChange}
+              error={formik.touched.password && Boolean(formik.errors.password)}
+              helperText={formik.touched.password && formik.errors.password}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Checkbox
+              color='primary'
+              id='acceptedTerms'
+              name='acceptedTerms'
+              checked={formik.values.acceptedTerms}
+              onChange={formik.handleChange}
+            />
+            I agree to all statements in the <Link to=''>terms of service</Link>
+            <FormHelperText className={classes.error}>
+              {formik.touched.acceptedTerms && formik.errors.acceptedTerms}
+            </FormHelperText>
+          </Grid>
+          <Grid item xs={12} className={classes.footer}>
+            <Button
+              fullWidth
+              variant='contained'
+              type='submit'
+              className={classes.button}
+              disabled={!(formik.isValid && formik.dirty)}>
+              Sign Up!
+            </Button>
+          </Grid>
+        </Grid>
+      </form>
     </>
   );
 };
+function App() {
+  return (
+    <Container maxWidth='sm'>
+      <RegisterForm />
+    </Container>
+  );
+}
+export default App;
