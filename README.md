@@ -54,3 +54,8 @@ R**esults must also be filterable by the following properties:**
 - `cuisineType` of a `truck`
 - `customerRatingAvg` of a `truck`
 - `radSize`: Desired radius distance from `user`'s `currentLocation` (should use the default value for `radSize` if not specified by `diner`)
+
+## 🏃‍♀️ Stretch ##
+1. Authenticated operator can create, update and delete a promotion for a truck and / or a menuItem that will be displayed on their truck profile. When the promotion is created a push notification with details of the promotion should be sent to any diner who has that truck in their favoriteTrucks list
+
+2. Authenticated diner can upload photos of menuItems or a truck when they are within a given radSize from a truck
