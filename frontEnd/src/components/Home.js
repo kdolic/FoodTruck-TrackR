@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import {
     Box,
@@ -74,6 +74,13 @@ container: {
 
 function Home() {
     const classes = useStyles();
+
+  const history = useHistory();
+
+  const routeToRegister = () => {
+    history.push('/register');
+  }
+
     return (
         <>
         <div className={classes.container}>
@@ -89,11 +96,11 @@ function Home() {
         <Box style={{display: 'flex', justifyContent: 'center'}}>
             <Box style={{display: 'flex', flexDirection: 'column', margin: '5%', alignItems: 'center'}}>
                 <Box style={{marginBottom: '10%'}}><img src={diner} style={{height: '20vh'}} /></Box>
-                <Box><Button className={classes.button}>Diner</Button></Box>
+                <Box><Button onClick={routeToRegister} className={classes.button}>Diner</Button></Box>
             </Box>
             <Box style={{display: 'flex', flexDirection: 'column', margin: '5%', alignItems: 'center'}}>
                 <Box style={{marginBottom: '0%'}}><img src={truck} style={{height: '20vh'}} /></Box>
-                <Box><Button className={classes.button}>Operator</Button></Box>
+                <Box><Button onClick={routeToRegister} className={classes.button}>Operator</Button></Box>
             </Box>
         </Box>
 
